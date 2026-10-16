@@ -1,0 +1,25 @@
+#!/bin/bash
+# Wrapper around snapper: refuse "create" without a description
+# and a cleanup algorithm. The real binary stays at /usr/bin/snapper.
+real=/usr/bin/snapper
+args=("$@")
+for i in "${!args[@]}"; do
+    [[ ${args[i]} == create ]] || continue
+    has_desc=0
+    has_cleanup=0
+    # Only inspect options placed after the "create" command, so the
+    # global "-c <config>" is not mistaken for "-c <cleanup-algorithm>".
+    for opt in "${args[@]:i+1}"; do
+        case $opt in
+            -d|--description|--description=*)             has_desc=1 ;;
+            -c|--cleanup-algorithm|--cleanup-algorithm=*) has_cleanup=1 ;;
+        esac
+    done
+    if (( ! has_desc || ! has_cleanup )); then
+        echo "snapper: 'create' requires --description and --cleanup-algorithm" >&2
+        echo "  example: snapper -c root create -c number -d \"before X\"" >&2
+        exit 1
+    fi
+    break
+done
+exec "$real" "$@"

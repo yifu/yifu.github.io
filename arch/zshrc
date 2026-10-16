@@ -1,0 +1,46 @@
+# History
+HISTFILE=~/.zsh_history
+HISTSIZE=1000000
+SAVEHIST=1000000
+setopt EXTENDED_HISTORY SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_SPACE
+
+# Completion
+autoload -Uz compinit && compinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+
+# Emacs-style keybindings
+bindkey -e
+
+# Word motion: Ctrl+Left/Right and Alt+Left/Right
+bindkey '^[[1;5D' backward-word
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;3D' backward-word
+bindkey '^[[1;3C' forward-word
+
+# Home, End, Delete, Ctrl+Delete (both cursor key modes for Home/End)
+bindkey '^[[H'    beginning-of-line
+bindkey '^[OH'    beginning-of-line
+bindkey '^[[F'    end-of-line
+bindkey '^[OF'    end-of-line
+bindkey '^[[3~'   delete-char
+bindkey '^[[3;5~' kill-word
+
+# Bash-like word boundaries: stop at /, -, _, . and other symbols
+autoload -Uz select-word-style
+select-word-style bash
+
+# Ctrl+W deletes back to the previous space, like bash
+zle -N backward-kill-space-word backward-kill-word-match
+zstyle ':zle:backward-kill-space-word' word-style space
+bindkey '^W' backward-kill-space-word
+
+# Suggest the package providing a missing command
+source /usr/share/doc/pkgfile/command-not-found.zsh
+
+# Default editor (sudoedit, visudo, systemctl edit, git)
+export EDITOR=nano
+
+# Plugins (syntax highlighting must be sourced last)
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
